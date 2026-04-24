@@ -39,6 +39,7 @@ body { touch-action: none; }
   display: grid;
   place-items: center;
   background: #020617;
+  overflow: hidden;
 }
 
 .stage {
@@ -53,6 +54,18 @@ body { touch-action: none; }
   box-shadow: 0 12px 40px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.05);
   background: #020617;
   isolation: isolate;
+  transform-origin: center center;
+}
+
+@media (orientation: portrait) {
+  :root {
+    --stage-w: calc(100dvh - var(--pad-y) - var(--pad-y2));
+    --stage-h: calc(100dvw - var(--pad-x) - var(--pad-x2));
+  }
+  .stage {
+    transform: rotate(-90deg);
+    border-radius: 12px;
+  }
 }
 
 .game-canvas {
@@ -198,12 +211,6 @@ button {
   min-height: 26px;
 }
 
-@media (max-width: 520px) {
+@media (orientation: landscape) and (max-height: 420px) {
   .status > div:nth-child(3) { display: none; }
-}
-
-@media (orientation: portrait) and (max-width: 520px) {
-  .grid { grid-template-columns: 1fr 1fr; }
-  .modal h2 { font-size: 15px; }
-  .modal p, .card { font-size: 11px; }
 }
