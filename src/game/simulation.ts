@@ -196,7 +196,7 @@ export const stepGame = (
 
   n.projectiles.forEach((p) => {
     for (const e of n.enemies) {
-      if (!p.hitIds.includes(e.id) && dist(p, e) <= e.r + 4) {
+      if (!p.hitIds.includes(e.id) && dist(p, e) <= e.r + p.size) {
         if (p.style === 'boomerang' && p.dotDps > 0) {
           e.dotDps = Math.max(e.dotDps || 0, p.dotDps);
           e.dotTime = Math.max(e.dotTime || 0, p.dotTime);

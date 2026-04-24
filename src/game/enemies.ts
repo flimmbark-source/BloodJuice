@@ -26,6 +26,8 @@ const enemyGoal = (enemy: Enemy, state: GameState, keys: KeyboardState): { x: nu
 };
 
 export const stepEnemy = (enemy: Enemy, state: GameState, keys: KeyboardState, dt: number): void => {
+  const prevX = enemy.x;
+  const prevY = enemy.y;
   if (typeof enemy.hurtFlash === 'number' && enemy.hurtFlash > 0) {
     enemy.hurtFlash = Math.max(0, (enemy.hurtFlash as number) - dt * 5);
   }
@@ -110,4 +112,6 @@ export const stepEnemy = (enemy: Enemy, state: GameState, keys: KeyboardState, d
 
   enemy.x = clamp(enemy.x + Math.cos(angle) * speed * dt, PLAYER_RADIUS, ARENA_WIDTH - PLAYER_RADIUS);
   enemy.y = clamp(enemy.y + Math.sin(angle) * speed * dt, PLAYER_RADIUS, ARENA_HEIGHT - PLAYER_RADIUS);
+  enemy.vx = (enemy.x - prevX) / Math.max(dt, 1e-5);
+  enemy.vy = (enemy.y - prevY) / Math.max(dt, 1e-5);
 };
