@@ -1,0 +1,16 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #e2e8f0; background: #020617; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #020617; }
+.app { min-height: 100vh; padding: 16px; display: grid; place-items: center; }
+.stage { position: relative; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; overflow: hidden; }
+.game-canvas { display: block; width: 100%; max-width: 960px; height: auto; background: #020617; }
+.game-canvas { touch-action: none; }
+.overlay { position: absolute; inset: 0; background: rgba(2,6,23,.75); display: grid; place-items: center; padding: 20px; }
+.modal { width: min(1000px, 100%); max-height: calc(100% - 20px); overflow: auto; background: rgba(15,23,42,.95); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; }
+.card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 12px; color: #e2e8f0; text-align: left; }
+button { cursor: pointer; }
+.hud-row { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+.hud-row > div { background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.15); border-radius: 999px; padding: 4px 10px; }
+.timer-card { position: absolute; left: 50%; transform: translateX(-50%); top: 8px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 8px 12px; text-align: center; }
+.status { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 8px; align-items: center; font-size: 12px; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 6px 10px; }
