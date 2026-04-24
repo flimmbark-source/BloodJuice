@@ -12,13 +12,18 @@ interface Props {
 
 export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isMobileRef = useRef(false);
+
+  useEffect(() => {
+    isMobileRef.current = window.matchMedia('(pointer: coarse)').matches;
+  }, []);
 
   useEffect(() => {
     const c = canvasRef.current;
     if (!c) return;
     const ctx = c.getContext('2d');
     if (!ctx) return;
-    drawGame(ctx, game);
+    drawGame(ctx, game, isMobileRef.current ? 'mobile' : 'desktop');
   }, [game]);
 
   const pointerToWorld = (clientX: number, clientY: number): { x: number; y: number } | null => {
