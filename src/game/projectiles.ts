@@ -12,10 +12,27 @@ const readEnemyVelocity = (enemy: Enemy): { vx: number; vy: number } => ({
   vy: typeof enemy.vy === 'number' ? enemy.vy : 0,
 });
 
+const nearestEnemyInRange = (player: PlayerState, enemies: Enemy[], range: number): Enemy | null => {
+  const rangeSq = range * range;
+  let best: Enemy | null = null;
+  let bestSq = Number.POSITIVE_INFINITY;
+  for (const enemy of enemies) {
+    const dx = enemy.x - player.x;
+    const dy = enemy.y - player.y;
+    const d2 = dx * dx + dy * dy;
+    if (d2 <= rangeSq && d2 < bestSq) {
+      best = enemy;
+      bestSq = d2;
+    }
+  }
+  return best;
+};
+
 const predictIntercept = (player: PlayerState, enemy: Enemy, shotSpeed: number): AimPoint => {
   const rx = enemy.x - player.x;
   const ry = enemy.y - player.y;
   const { vx, vy } = readEnemyVelocity(enemy);
+  if (Math.abs(vx) + Math.abs(vy) < 1) return { x: enemy.x, y: enemy.y };
   const a = vx * vx + vy * vy - shotSpeed * shotSpeed;
   const b = 2 * (rx * vx + ry * vy);
   const c = rx * rx + ry * ry;
@@ -83,10 +100,8 @@ export const makeProjectile = (
 export const fireShots = (player: PlayerState, enemies: Enemy[]): Projectile[] => {
   const range = player.range || 320;
   if (!enemies.length) return [];
-  const inRange = enemies.filter((e) => dist(player, e) <= range);
-  if (!inRange.length) return [];
-
-  const target = [...inRange].sort((a, b) => dist(player, a) - dist(player, b))[0];
+  const target = nearestEnemyInRange(player, enemies, range);
+  if (!target) return [];
   const targetPoint = player.shotStyle === 'bolt' ? predictIntercept(player, target, player.shotSpeed || 520) : { x: target.x, y: target.y };
   const baseAngle = Math.atan2(targetPoint.y - player.y, targetPoint.x - player.x);
   const spread = player.projectiles === 1 ? 0 : player.weaponSpread || 0.22;
