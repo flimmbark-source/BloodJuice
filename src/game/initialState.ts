@@ -93,4 +93,6 @@ export const initGame = (): GameState => ({
   spawnBudget: 0,
   spawnCooldown: 1.4,
   invuln: 0,
+  hitStop: 0,
+  shake: 0,
 });

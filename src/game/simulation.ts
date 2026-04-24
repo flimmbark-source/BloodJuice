@@ -92,8 +92,15 @@ export const stepGame = (
   shotCooldown: number,
 ): { state: GameState; shotCooldown: number } => {
   if (prev.phase !== 'playing') return { state: prev, shotCooldown };
+  if (prev.hitStop > 0) {
+    return {
+      state: { ...prev, hitStop: Math.max(0, prev.hitStop - dt) },
+      shotCooldown,
+    };
+  }
   const n: GameState = structuredClone(prev);
   n.time += dt;
+  n.shake = Math.max(0, n.shake - dt * 18);
   n.waveTime = Math.max(0, n.waveTime - dt);
   n.player.hitFlash = Math.max(0, n.player.hitFlash - dt * 4);
   n.player.shield = Math.max(0, n.player.shield - dt * 0.25);
@@ -256,6 +263,10 @@ export const stepGame = (
     n.enemies = post;
   }
   if (chainKills > 0 && n.systems.funeralHeatEnabled) n.systems.funeralHeatTime = clamp(n.systems.funeralHeatTime + 0.8, 0, 1.4);
+  if (chainKills > 0) {
+    n.hitStop = Math.max(n.hitStop, Math.min(0.06, 0.04 + chainKills * 0.008));
+    n.shake = Math.max(n.shake, Math.min(3.5, 2 + chainKills * 0.35));
+  }
 
   const magnet = magnetRange(n);
   n.drops.forEach((d) => {
@@ -306,6 +317,8 @@ export const stepGame = (
       n.player.hp -= damage;
       n.player.hitFlash = 1;
       n.invuln = 0.5;
+      n.hitStop = Math.max(n.hitStop, 0.05);
+      n.shake = Math.max(n.shake, 3);
       n.ripples.push(mkRipple(n.player.x, n.player.y, PLAYER_RADIUS + 14, '#fb7185', 0.3, 2.2));
       n.particles.push(...sparkBurst(n.player.x, n.player.y, '#fb7185', 6, 160));
       if (n.player.hp <= 0) return { state: { ...n, phase: 'dead', messages: ['The bloom overwhelmed you.'] }, shotCooldown };

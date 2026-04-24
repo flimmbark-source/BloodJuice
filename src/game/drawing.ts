@@ -406,6 +406,14 @@ export const drawEnemyForTest = drawEnemy;
 
 export const drawGame = (ctx: CanvasRenderingContext2D, game: GameState, mode: RenderMode = 'desktop'): void => {
   ctx.clearRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  const shake = game.shake || 0;
+  const shaken = shake > 0.05;
+  if (shaken) {
+    const ox = (Math.random() * 2 - 1) * shake;
+    const oy = (Math.random() * 2 - 1) * shake;
+    ctx.save();
+    ctx.translate(ox, oy);
+  }
   drawBackground(ctx, game.time, mode);
   drawAshZones(ctx, game.ash, game.systems.ashWakeDuration || 0.7);
   drawTrailZones(ctx, game.trail);
@@ -419,4 +427,5 @@ export const drawGame = (ctx: CanvasRenderingContext2D, game: GameState, mode: R
   drawPlayer(ctx, game);
   drawFloaters(ctx, game.floaters);
   drawVignette(ctx, game.player.hitFlash);
+  if (shaken) ctx.restore();
 };

@@ -239,6 +239,8 @@ export interface GameState {
   spawnBudget: number;
   spawnCooldown: number;
   invuln: number;
+  hitStop: number;
+  shake: number;
 }
 
 export interface KeyboardState {
