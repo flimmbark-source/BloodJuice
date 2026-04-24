@@ -5,6 +5,40 @@ const momentumMeter = (p: PlayerState): number => (p.momentumEnabled ? p.momentu
 const missingHpDamageBonus = (p: PlayerState): number =>
   p.missingHpDamageScale ? ((p.maxHp - p.hp) / Math.max(1, p.maxHp)) * p.missingHpDamageScale : 0;
 
+type AimPoint = { x: number; y: number };
+
+const readEnemyVelocity = (enemy: Enemy): { vx: number; vy: number } => ({
+  vx: typeof enemy.vx === 'number' ? enemy.vx : 0,
+  vy: typeof enemy.vy === 'number' ? enemy.vy : 0,
+});
+
+const predictIntercept = (player: PlayerState, enemy: Enemy, shotSpeed: number): AimPoint => {
+  const rx = enemy.x - player.x;
+  const ry = enemy.y - player.y;
+  const { vx, vy } = readEnemyVelocity(enemy);
+  const a = vx * vx + vy * vy - shotSpeed * shotSpeed;
+  const b = 2 * (rx * vx + ry * vy);
+  const c = rx * rx + ry * ry;
+
+  let time = 0;
+  if (Math.abs(a) < 1e-5) {
+    if (Math.abs(b) > 1e-5) time = -c / b;
+  } else {
+    const disc = b * b - 4 * a * c;
+    if (disc >= 0) {
+      const s = Math.sqrt(disc);
+      const t1 = (-b - s) / (2 * a);
+      const t2 = (-b + s) / (2 * a);
+      const ts = [t1, t2].filter((t) => t > 0);
+      if (ts.length) time = Math.min(...ts);
+    }
+  }
+
+  if (!Number.isFinite(time) || time <= 0) return { x: enemy.x, y: enemy.y };
+  const cappedTime = Math.min(time, 0.7);
+  return { x: enemy.x + vx * cappedTime, y: enemy.y + vy * cappedTime };
+};
+
 export const makeProjectile = (
   p: PlayerState,
   t: Enemy,
@@ -13,6 +47,7 @@ export const makeProjectile = (
   multiplier: number,
   movingPierce: number,
   index: number,
+  aimPoint: AimPoint,
 ): Projectile => ({
   id: gid(),
   x: p.x,
@@ -22,8 +57,8 @@ export const makeProjectile = (
   ox: p.x,
   oy: p.y,
   tid: t.id,
-  tx: t.x,
-  ty: t.y,
+  tx: aimPoint.x,
+  ty: aimPoint.y,
   bx: p.x,
   by: p.y,
   didBounce: false,
@@ -52,7 +87,8 @@ export const fireShots = (player: PlayerState, enemies: Enemy[]): Projectile[] =
   if (!inRange.length) return [];
 
   const target = [...inRange].sort((a, b) => dist(player, a) - dist(player, b))[0];
-  const baseAngle = Math.atan2(target.y - player.y, target.x - player.x);
+  const targetPoint = player.shotStyle === 'bolt' ? predictIntercept(player, target, player.shotSpeed || 520) : { x: target.x, y: target.y };
+  const baseAngle = Math.atan2(targetPoint.y - player.y, targetPoint.x - player.x);
   const spread = player.projectiles === 1 ? 0 : player.weaponSpread || 0.22;
   const multiplier =
     1 +
@@ -64,7 +100,7 @@ export const fireShots = (player: PlayerState, enemies: Enemy[]): Projectile[] =
   const speed = player.shotSpeed || 520;
 
   return Array.from({ length: player.projectiles }, (_, i) =>
-    makeProjectile(player, target, baseAngle + (i - (player.projectiles - 1) / 2) * spread, speed, multiplier, movingPierce, i),
+    makeProjectile(player, target, baseAngle + (i - (player.projectiles - 1) / 2) * spread, speed, multiplier, movingPierce, i, targetPoint),
   );
 };
 
