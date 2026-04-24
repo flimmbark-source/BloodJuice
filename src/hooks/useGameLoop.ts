@@ -7,8 +7,7 @@ export const useGameLoop = (onFrame: (dt: number) => void): void => {
   cbRef.current = onFrame;
 
   useEffect(() => {
-    const isMobile = window.matchMedia('(pointer: coarse)').matches;
-    const frameIntervalMs = isMobile ? 1000 / 45 : 1000 / 60;
+    const frameIntervalMs = 1000 / 60;
     let last = performance.now();
 
     const handleVisibility = (): void => {
@@ -26,7 +25,7 @@ export const useGameLoop = (onFrame: (dt: number) => void): void => {
         rafRef.current = requestAnimationFrame(loop);
         return;
       }
-      const dt = Math.min(0.033, elapsed / 1000);
+      const dt = Math.min(0.1, elapsed / 1000);
       last = now;
       cbRef.current(dt);
       rafRef.current = requestAnimationFrame(loop);
