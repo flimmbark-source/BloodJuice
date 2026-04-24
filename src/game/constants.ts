@@ -1,5 +1,21 @@
-export const ARENA_WIDTH = 960;
-export const ARENA_HEIGHT = 600;
+export const BASE_ARENA_WIDTH = 960;
+export const BASE_ARENA_HEIGHT = 600;
+export const BASE_ARENA_ASPECT = BASE_ARENA_WIDTH / BASE_ARENA_HEIGHT;
+
+export let ARENA_WIDTH = BASE_ARENA_WIDTH;
+export let ARENA_HEIGHT = BASE_ARENA_HEIGHT;
+
+export const setArenaFromViewport = (viewportWidth: number, viewportHeight: number): void => {
+  const safeWidth = Math.max(1, viewportWidth);
+  const safeHeight = Math.max(1, viewportHeight);
+  const viewportAspect = safeWidth / safeHeight;
+
+  ARENA_WIDTH = BASE_ARENA_WIDTH;
+  ARENA_HEIGHT =
+    viewportAspect < BASE_ARENA_ASPECT
+      ? Math.round(BASE_ARENA_WIDTH / viewportAspect)
+      : BASE_ARENA_HEIGHT;
+};
 export const PLAYER_RADIUS = 14;
 export const DROP_RADIUS = 6;
 export const WAVE_BASE = 35;

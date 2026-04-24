@@ -11,7 +11,7 @@ import { selfCheck } from './game/selfCheck';
 import { synthBurn, synthKeep, chooseUpgrade, prepareWaveEndToSynthesis, stepGame } from './game/simulation';
 import { upgradeByKey } from './game/upgrades';
 import { beginNextWave } from './game/wave';
-import { waveLen } from './game/constants';
+import { setArenaFromViewport, waveLen } from './game/constants';
 import { weaponByKey } from './game/weapons';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useKeyboard } from './hooks/useKeyboard';
@@ -19,13 +19,27 @@ import { useTapMove } from './hooks/useTapMove';
 import type { Upgrade } from './game/types';
 
 export default function App() {
-  const [game, setGame] = useState(initGame);
+  const [game, setGame] = useState(() => {
+    setArenaFromViewport(window.innerWidth, window.innerHeight);
+    return initGame();
+  });
+  const [, setViewportTick] = useState(0);
   const keysRef = useKeyboard();
   const { tapMoveRef, setTapTarget, clearTapTarget } = useTapMove();
   const shotCooldownRef = useRef(0);
 
   useEffect(() => {
     selfCheck();
+  }, []);
+
+  useEffect(() => {
+    const syncArena = (): void => {
+      setArenaFromViewport(window.innerWidth, window.innerHeight);
+      setViewportTick((tick) => tick + 1);
+    };
+
+    window.addEventListener('resize', syncArena);
+    return () => window.removeEventListener('resize', syncArena);
   }, []);
 
   useEffect(() => {
