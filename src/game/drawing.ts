@@ -1,5 +1,6 @@
 import { ARENA_HEIGHT, ARENA_WIDTH, DROP_RADIUS, PLAYER_RADIUS } from './constants';
 import type { AreaZone, Enemy, ExplosionFx, Floater, GameState, Particle, Projectile, Ripple, SpawnWarning } from './types';
+type RenderMode = 'desktop' | 'mobile';
 
 export const drawCircle = (
   ctx: CanvasRenderingContext2D,
@@ -31,7 +32,7 @@ const DUST = Array.from({ length: 110 }, (_, i) => ({
   drift: (i % 7) * 0.2,
 }));
 
-const drawBackground = (ctx: CanvasRenderingContext2D, time: number): void => {
+const drawBackground = (ctx: CanvasRenderingContext2D, time: number, mode: RenderMode): void => {
   const bg = ctx.createLinearGradient(0, 0, 0, ARENA_HEIGHT);
   bg.addColorStop(0, '#0b1020');
   bg.addColorStop(0.6, '#10132a');
@@ -39,22 +40,25 @@ const drawBackground = (ctx: CanvasRenderingContext2D, time: number): void => {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
 
-  ctx.strokeStyle = 'rgba(255,255,255,.05)';
-  ctx.lineWidth = 1;
-  for (let x = 40; x < ARENA_WIDTH; x += 40) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, ARENA_HEIGHT);
-    ctx.stroke();
-  }
-  for (let y = 40; y < ARENA_HEIGHT; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(ARENA_WIDTH, y);
-    ctx.stroke();
+  if (mode === 'desktop') {
+    ctx.strokeStyle = 'rgba(255,255,255,.05)';
+    ctx.lineWidth = 1;
+    for (let x = 40; x < ARENA_WIDTH; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, ARENA_HEIGHT);
+      ctx.stroke();
+    }
+    for (let y = 40; y < ARENA_HEIGHT; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(ARENA_WIDTH, y);
+      ctx.stroke();
+    }
   }
 
-  for (const d of DUST) {
+  const dust = mode === 'mobile' ? DUST.slice(0, 36) : DUST;
+  for (const d of dust) {
     const ox = (d.x + Math.sin(time * 0.4 + d.drift) * 12 + ARENA_WIDTH) % ARENA_WIDTH;
     const oy = (d.y + Math.cos(time * 0.3 + d.drift) * 8 + ARENA_HEIGHT) % ARENA_HEIGHT;
     ctx.fillStyle = d.hue;
@@ -400,9 +404,9 @@ const drawPlayer = (ctx: CanvasRenderingContext2D, state: GameState): void => {
 export const drawProjectileForTest = drawProjectile;
 export const drawEnemyForTest = drawEnemy;
 
-export const drawGame = (ctx: CanvasRenderingContext2D, game: GameState): void => {
+export const drawGame = (ctx: CanvasRenderingContext2D, game: GameState, mode: RenderMode = 'desktop'): void => {
   ctx.clearRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
-  drawBackground(ctx, game.time);
+  drawBackground(ctx, game.time, mode);
   drawAshZones(ctx, game.ash, game.systems.ashWakeDuration || 0.7);
   drawTrailZones(ctx, game.trail);
   drawExplosions(ctx, game.expl);

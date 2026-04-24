@@ -9,11 +9,12 @@ export const setArenaFromViewport = (viewportWidth: number, viewportHeight: numb
   const safeWidth = Math.max(1, viewportWidth);
   const safeHeight = Math.max(1, viewportHeight);
   const viewportAspect = safeWidth / safeHeight;
+  const portraitHeight = Math.round(BASE_ARENA_WIDTH / viewportAspect);
 
   ARENA_WIDTH = BASE_ARENA_WIDTH;
   ARENA_HEIGHT =
     viewportAspect < BASE_ARENA_ASPECT
-      ? Math.round(BASE_ARENA_WIDTH / viewportAspect)
+      ? Math.min(1280, portraitHeight)
       : BASE_ARENA_HEIGHT;
 };
 export const PLAYER_RADIUS = 14;
