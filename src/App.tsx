@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GameCanvas } from './components/GameCanvas';
 import { HUD } from './components/HUD';
 import { Modal } from './components/Modal';
@@ -32,14 +32,9 @@ export default function App() {
     selfCheck();
   }, []);
 
-  useEffect(() => {
-    const syncArena = (): void => {
-      setArenaFromViewport(window.innerWidth, window.innerHeight);
-      setViewportTick((tick) => tick + 1);
-    };
-
-    window.addEventListener('resize', syncArena);
-    return () => window.removeEventListener('resize', syncArena);
+  const handleCanvasResize = useCallback((width: number, height: number): void => {
+    setArenaFromViewport(width, height);
+    setViewportTick((tick) => tick + 1);
   }, []);
 
   useEffect(() => {
@@ -75,7 +70,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="stage">
-        <GameCanvas game={game} onTapMove={setTapTarget} onTapEnd={clearTapTarget} />
+        <GameCanvas game={game} onTapMove={setTapTarget} onTapEnd={clearTapTarget} onSizeChange={handleCanvasResize} />
         <HUD game={game} onRestart={restart} />
 
         {game.phase === 'start' && (

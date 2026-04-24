@@ -24,60 +24,121 @@ export const drawCircle = (
   }
 };
 
-const DUST = Array.from({ length: 110 }, (_, i) => ({
-  x: (i * 137.7) % ARENA_WIDTH,
-  y: (i * 97.3) % ARENA_HEIGHT,
-  s: i % 3 === 0 ? 2 : 1.2,
-  hue: i % 5 === 0 ? 'rgba(167,139,250,.08)' : i % 2 === 0 ? 'rgba(255,255,255,.06)' : 'rgba(251,113,133,.06)',
-  drift: (i % 7) * 0.2,
-}));
+interface DustDot { x: number; y: number; s: number; hue: string; drift: number }
+let dustCache: { w: number; h: number; data: DustDot[] } = { w: 0, h: 0, data: [] };
+const getDust = (): DustDot[] => {
+  if (dustCache.w === ARENA_WIDTH && dustCache.h === ARENA_HEIGHT) return dustCache.data;
+  const data: DustDot[] = [];
+  for (let i = 0; i < 110; i++) {
+    data.push({
+      x: (i * 137.7) % ARENA_WIDTH,
+      y: (i * 97.3) % ARENA_HEIGHT,
+      s: i % 3 === 0 ? 2 : 1.2,
+      hue: i % 5 === 0 ? 'rgba(167,139,250,.08)' : i % 2 === 0 ? 'rgba(255,255,255,.06)' : 'rgba(251,113,133,.06)',
+      drift: (i % 7) * 0.2,
+    });
+  }
+  dustCache = { w: ARENA_WIDTH, h: ARENA_HEIGHT, data };
+  return data;
+};
 
-const drawBackground = (ctx: CanvasRenderingContext2D, time: number, mode: RenderMode): void => {
-  const bg = ctx.createLinearGradient(0, 0, 0, ARENA_HEIGHT);
+let bgCache: { canvas: HTMLCanvasElement; key: string } | null = null;
+const getBackgroundCache = (mode: RenderMode): HTMLCanvasElement | null => {
+  if (typeof document === 'undefined') return null;
+  const key = `${ARENA_WIDTH}x${ARENA_HEIGHT}-${mode}`;
+  if (bgCache && bgCache.key === key) return bgCache.canvas;
+  const cv = document.createElement('canvas');
+  cv.width = ARENA_WIDTH;
+  cv.height = ARENA_HEIGHT;
+  const cx = cv.getContext('2d');
+  if (!cx) return null;
+
+  const bg = cx.createLinearGradient(0, 0, 0, ARENA_HEIGHT);
   bg.addColorStop(0, '#0b1020');
-  bg.addColorStop(0.6, '#10132a');
+  bg.addColorStop(0.55, '#10132a');
   bg.addColorStop(1, '#140b1d');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  cx.fillStyle = bg;
+  cx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
 
   if (mode === 'desktop') {
-    ctx.strokeStyle = 'rgba(255,255,255,.05)';
-    ctx.lineWidth = 1;
+    cx.strokeStyle = 'rgba(226,232,240,.04)';
+    cx.lineWidth = 1;
     for (let x = 40; x < ARENA_WIDTH; x += 40) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, ARENA_HEIGHT);
-      ctx.stroke();
+      cx.beginPath();
+      cx.moveTo(x + 0.5, 0);
+      cx.lineTo(x + 0.5, ARENA_HEIGHT);
+      cx.stroke();
     }
     for (let y = 40; y < ARENA_HEIGHT; y += 40) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(ARENA_WIDTH, y);
-      ctx.stroke();
+      cx.beginPath();
+      cx.moveTo(0, y + 0.5);
+      cx.lineTo(ARENA_WIDTH, y + 0.5);
+      cx.stroke();
     }
   }
 
-  const dust = mode === 'mobile' ? DUST.slice(0, 36) : DUST;
-  for (const d of dust) {
+  const fogRadius = Math.max(ARENA_WIDTH, ARENA_HEIGHT) * 0.7;
+  const fog = cx.createRadialGradient(ARENA_WIDTH / 2, ARENA_HEIGHT / 2, fogRadius * 0.22, ARENA_WIDTH / 2, ARENA_HEIGHT / 2, fogRadius);
+  fog.addColorStop(0, 'rgba(167,139,250,0)');
+  fog.addColorStop(1, 'rgba(15,23,42,.3)');
+  cx.fillStyle = fog;
+  cx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+
+  bgCache = { canvas: cv, key };
+  return cv;
+};
+
+const drawBackground = (ctx: CanvasRenderingContext2D, time: number, mode: RenderMode): void => {
+  const cached = getBackgroundCache(mode);
+  if (cached) {
+    ctx.drawImage(cached, 0, 0);
+  } else {
+    ctx.fillStyle = '#0b1020';
+    ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  }
+
+  const dustAll = getDust();
+  const dustCount = mode === 'mobile' ? 24 : dustAll.length;
+  for (let i = 0; i < dustCount; i++) {
+    const d = dustAll[i];
     const ox = (d.x + Math.sin(time * 0.4 + d.drift) * 12 + ARENA_WIDTH) % ARENA_WIDTH;
     const oy = (d.y + Math.cos(time * 0.3 + d.drift) * 8 + ARENA_HEIGHT) % ARENA_HEIGHT;
     ctx.fillStyle = d.hue;
     ctx.fillRect(ox, oy, d.s, d.s);
   }
+};
 
-  const fog = ctx.createRadialGradient(ARENA_WIDTH / 2, ARENA_HEIGHT / 2, 120, ARENA_WIDTH / 2, ARENA_HEIGHT / 2, 560);
-  fog.addColorStop(0, 'rgba(167,139,250,0)');
-  fog.addColorStop(1, 'rgba(15,23,42,.28)');
-  ctx.fillStyle = fog;
-  ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+let vignetteCache: { canvas: HTMLCanvasElement; key: string } | null = null;
+const getVignette = (): HTMLCanvasElement | null => {
+  if (typeof document === 'undefined') return null;
+  const key = `${ARENA_WIDTH}x${ARENA_HEIGHT}`;
+  if (vignetteCache && vignetteCache.key === key) return vignetteCache.canvas;
+  const cv = document.createElement('canvas');
+  cv.width = ARENA_WIDTH;
+  cv.height = ARENA_HEIGHT;
+  const cx = cv.getContext('2d');
+  if (!cx) return null;
+  const outer = Math.max(ARENA_WIDTH, ARENA_HEIGHT) * 0.7;
+  const inner = outer * 0.46;
+  const vg = cx.createRadialGradient(ARENA_WIDTH / 2, ARENA_HEIGHT / 2, inner, ARENA_WIDTH / 2, ARENA_HEIGHT / 2, outer);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(4,6,15,.48)');
+  cx.fillStyle = vg;
+  cx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  vignetteCache = { canvas: cv, key };
+  return cv;
 };
 
 const drawVignette = (ctx: CanvasRenderingContext2D, hitFlash: number): void => {
-  const vg = ctx.createRadialGradient(ARENA_WIDTH / 2, ARENA_HEIGHT / 2, 260, ARENA_WIDTH / 2, ARENA_HEIGHT / 2, 560);
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, `rgba(4,6,15,${0.45 + Math.min(0.25, hitFlash * 0.25)})`);
-  ctx.fillStyle = vg;
-  ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  const cached = getVignette();
+  if (cached) {
+    ctx.drawImage(cached, 0, 0);
+    if (hitFlash > 0.05) {
+      ctx.globalAlpha = Math.min(0.55, hitFlash * 0.55);
+      ctx.drawImage(cached, 0, 0);
+      ctx.globalAlpha = 1;
+    }
+  }
 };
 
 const drawAshZones = (ctx: CanvasRenderingContext2D, zones: AreaZone[], ashDuration: number): void => {
@@ -134,14 +195,36 @@ const drawSpawnWarnings = (ctx: CanvasRenderingContext2D, spawns: SpawnWarning[]
   }
 };
 
+const DROP_GLOW_SIZE = DROP_RADIUS * 6;
+const dropGlowCache = new Map<string, HTMLCanvasElement | null>();
+const getDropGlow = (color: string): HTMLCanvasElement | null => {
+  if (typeof document === 'undefined') return null;
+  const hit = dropGlowCache.get(color);
+  if (hit !== undefined) return hit;
+  const cv = document.createElement('canvas');
+  cv.width = DROP_GLOW_SIZE;
+  cv.height = DROP_GLOW_SIZE;
+  const cx = cv.getContext('2d');
+  if (!cx) {
+    dropGlowCache.set(color, null);
+    return null;
+  }
+  const half = DROP_GLOW_SIZE / 2;
+  const grad = cx.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0, `${color}55`);
+  grad.addColorStop(1, `${color}00`);
+  cx.fillStyle = grad;
+  cx.fillRect(0, 0, DROP_GLOW_SIZE, DROP_GLOW_SIZE);
+  dropGlowCache.set(color, cv);
+  return cv;
+};
+
 const drawDrops = (ctx: CanvasRenderingContext2D, state: GameState): void => {
+  const half = DROP_GLOW_SIZE / 2;
   for (const d of state.drops) {
     const color = d.type === 'heal' ? '#fb7185' : d.value > 1 ? '#f59e0b' : '#34d399';
-    const glow = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, DROP_RADIUS * 3);
-    glow.addColorStop(0, `${color}55`);
-    glow.addColorStop(1, `${color}00`);
-    ctx.fillStyle = glow;
-    drawCircle(ctx, d.x, d.y, DROP_RADIUS * 3, glow as unknown as string);
+    const glow = getDropGlow(color);
+    if (glow) ctx.drawImage(glow, d.x - half, d.y - half);
     drawCircle(ctx, d.x, d.y, DROP_RADIUS, color, 'rgba(255,255,255,.7)', 1.5);
   }
 };
@@ -240,14 +323,21 @@ const drawSickleMark = (ctx: CanvasRenderingContext2D, e: Enemy, time: number): 
   ctx.restore();
 };
 
-const drawEnemy = (ctx: CanvasRenderingContext2D, e: Enemy, time: number): void => {
+const drawEnemy = (ctx: CanvasRenderingContext2D, e: Enemy, time: number, mode: RenderMode = 'desktop'): void => {
   const flash = Math.max(0, (e.hurtFlash as number) || 0);
   const body = flash > 0.05 ? 'rgba(255,255,255,.95)' : e.color;
-  const shadow = ctx.createRadialGradient(e.x, e.y + 2, 0, e.x, e.y + 2, e.r * 1.8);
-  shadow.addColorStop(0, 'rgba(0,0,0,.35)');
-  shadow.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = shadow;
-  drawCircle(ctx, e.x, e.y + 2, e.r * 1.8, shadow);
+  if (mode === 'desktop') {
+    const shadow = ctx.createRadialGradient(e.x, e.y + 2, 0, e.x, e.y + 2, e.r * 1.8);
+    shadow.addColorStop(0, 'rgba(0,0,0,.35)');
+    shadow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = shadow;
+    drawCircle(ctx, e.x, e.y + 2, e.r * 1.8, shadow);
+  } else {
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    ctx.beginPath();
+    ctx.ellipse(e.x, e.y + e.r * 0.6, e.r * 0.95, e.r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
   drawCircle(ctx, e.x, e.y, e.r, body, 'rgba(255,255,255,.55)', 1.5);
 
   if (e.moveType === 'scout') {
@@ -420,7 +510,7 @@ export const drawGame = (ctx: CanvasRenderingContext2D, game: GameState, mode: R
   drawExplosions(ctx, game.expl);
   drawSpawnWarnings(ctx, game.spawns, game.time);
   drawDrops(ctx, game);
-  game.enemies.forEach((e) => drawEnemy(ctx, e, game.time));
+  game.enemies.forEach((e) => drawEnemy(ctx, e, game.time, mode));
   game.projectiles.forEach((p) => drawProjectile(ctx, p));
   drawParticles(ctx, game.particles);
   drawRipples(ctx, game.ripples);

@@ -8,16 +8,32 @@ interface Props {
   game: GameState;
   onTapMove: (x: number, y: number) => void;
   onTapEnd: () => void;
+  onSizeChange: (width: number, height: number) => void;
 }
 
-export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
+export function GameCanvas({ game, onTapMove, onTapEnd, onSizeChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isMobileRef = useRef(false);
   const pointerMoveRafRef = useRef<number | null>(null);
   const queuedPointRef = useRef<{ x: number; y: number } | null>(null);
+  const onSizeChangeRef = useRef(onSizeChange);
+  onSizeChangeRef.current = onSizeChange;
 
   useEffect(() => {
     isMobileRef.current = window.matchMedia('(pointer: coarse)').matches;
+  }, []);
+
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const box = entry.contentRect;
+      if (box.width > 0 && box.height > 0) onSizeChangeRef.current(box.width, box.height);
+    });
+    ro.observe(c);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
