@@ -13,6 +13,8 @@ interface Props {
 export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isMobileRef = useRef(false);
+  const pointerMoveRafRef = useRef<number | null>(null);
+  const queuedPointRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     isMobileRef.current = window.matchMedia('(pointer: coarse)').matches;
@@ -25,6 +27,12 @@ export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
     if (!ctx) return;
     drawGame(ctx, game, isMobileRef.current ? 'mobile' : 'desktop');
   }, [game]);
+
+  useEffect(() => {
+    return () => {
+      if (pointerMoveRafRef.current) cancelAnimationFrame(pointerMoveRafRef.current);
+    };
+  }, []);
 
   const pointerToWorld = (clientX: number, clientY: number): { x: number; y: number } | null => {
     const canvas = canvasRef.current;
@@ -46,7 +54,14 @@ export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
     if (e.buttons === 0) return;
     const world = pointerToWorld(e.clientX, e.clientY);
     if (!world) return;
-    onTapMove(world.x, world.y);
+    queuedPointRef.current = world;
+    if (pointerMoveRafRef.current) return;
+    pointerMoveRafRef.current = requestAnimationFrame(() => {
+      pointerMoveRafRef.current = null;
+      const queued = queuedPointRef.current;
+      if (!queued) return;
+      onTapMove(queued.x, queued.y);
+    });
   };
 
   return (
