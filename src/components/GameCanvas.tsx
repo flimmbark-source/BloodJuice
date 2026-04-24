@@ -26,9 +26,12 @@ export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return null;
-    const x = ((clientX - rect.left) / rect.width) * ARENA_WIDTH;
-    const y = ((clientY - rect.top) / rect.height) * ARENA_HEIGHT;
-    return { x, y };
+    const relX = (clientX - rect.left) / rect.width;
+    const relY = (clientY - rect.top) / rect.height;
+    if (rect.height > rect.width) {
+      return { x: (1 - relY) * ARENA_WIDTH, y: relX * ARENA_HEIGHT };
+    }
+    return { x: relX * ARENA_WIDTH, y: relY * ARENA_HEIGHT };
   };
 
   const handlePointerDown = (e: ReactPointerEvent<HTMLCanvasElement>): void => {
