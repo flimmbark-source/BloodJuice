@@ -28,9 +28,6 @@ export function GameCanvas({ game, onTapMove, onTapEnd }: Props) {
     if (!rect.width || !rect.height) return null;
     const relX = (clientX - rect.left) / rect.width;
     const relY = (clientY - rect.top) / rect.height;
-    if (rect.height > rect.width) {
-      return { x: (1 - relY) * ARENA_WIDTH, y: relX * ARENA_HEIGHT };
-    }
     return { x: relX * ARENA_WIDTH, y: relY * ARENA_HEIGHT };
   };
 
