@@ -35,4 +35,7 @@ export const selfCheck = (): void => {
 
   const next = beginNextWave({ ...kept, phase: 'synthesis' as const, player: { ...kept.player, weaponKey: 'graveWand' } });
   if (next.wavePicks.length !== 0 || next.synthKeep.length !== 0 || next.synthBurn.length !== 0) throw new Error('next_wave_not_cleared');
+
+  if (!Array.isArray(g.particles) || !Array.isArray(g.ripples)) throw new Error('fx_slots_missing');
+  if (!Array.isArray(next.particles) || !Array.isArray(next.ripples) || next.particles.length !== 0 || next.ripples.length !== 0) throw new Error('fx_slots_not_cleared');
 };

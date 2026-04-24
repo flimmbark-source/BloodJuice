@@ -72,6 +72,8 @@ export const beginNextWave = (prev: GameState): GameState => {
     ash: [],
     expl: [],
     floaters: [],
+    particles: [],
+    ripples: [],
     spawnBudget: 0,
     spawnCooldown: 1.2,
     messages: [`Wave ${wave} begins.`],
