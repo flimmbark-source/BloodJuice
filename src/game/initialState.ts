@@ -78,6 +78,8 @@ export const initGame = (): GameState => ({
   ash: [],
   expl: [],
   floaters: [],
+  particles: [],
+  ripples: [],
   spawns: [],
   messages: ['Choose a starting weapon.'],
   offered: [],

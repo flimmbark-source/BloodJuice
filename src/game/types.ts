@@ -111,6 +111,33 @@ export interface Projectile {
   curve: number;
   baseAngle: number;
   spin: number;
+  trailPoints?: Array<{ x: number; y: number; life: number }>;
+}
+
+export interface Particle {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  size: number;
+  drag?: number;
+  gravity?: number;
+}
+
+export interface Ripple {
+  id: string;
+  x: number;
+  y: number;
+  r: number;
+  maxR: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  width: number;
 }
 
 export interface Drop {
@@ -197,6 +224,8 @@ export interface GameState {
   ash: AreaZone[];
   expl: ExplosionFx[];
   floaters: Floater[];
+  particles: Particle[];
+  ripples: Ripple[];
   spawns: SpawnWarning[];
   messages: string[];
   offered: Upgrade[];
