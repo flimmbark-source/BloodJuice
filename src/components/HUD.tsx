@@ -7,7 +7,7 @@ export function HUD({ game, onRestart }: { game: GameState; onRestart: () => voi
   const xpPct = Math.max(0, Math.min(100, (game.xp / Math.max(1, game.xpTarget)) * 100));
 
   return (
-    <>
+    <div className="hud">
       <div className="hud-row">
         <div>Wave {game.wave}</div>
         <div>Lv {game.level}</div>
@@ -36,6 +36,6 @@ export function HUD({ game, onRestart }: { game: GameState; onRestart: () => voi
         <div>Move: WASD / Tap</div>
         <button onClick={onRestart}>Restart</button>
       </div>
-    </>
+    </div>
   );
 }
