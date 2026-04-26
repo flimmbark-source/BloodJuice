@@ -149,133 +149,227 @@ button {
 }
 .modal button[disabled] { opacity: .5; cursor: default; }
 
+/* === HUD OVERLAY === */
 .hud {
   position: absolute;
-  top: calc(var(--pad-y) + clamp(4px, 1.2vmin, 10px));
-  left: calc(var(--pad-x) + clamp(4px, 1.2vmin, 10px));
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(4px, 1vmin, 8px);
-  transform: scale(0.25);
-  transform-origin: top left;
-  z-index: 5;
-}
-
-.hud-row {
-  position: relative;
-  display: flex;
-  gap: clamp(4px, 1vmin, 8px);
-  flex-wrap: wrap;
-  font-size: clamp(10px, 1.7vmin, 12px);
+  inset: 0;
   pointer-events: none;
   z-index: 5;
 }
-.hud-row > div {
-  background: rgba(0,0,0,.5);
-  border: 1px solid rgba(255,255,255,.15);
+
+/* === HUD ZONES === */
+.hud-top-left {
+  position: absolute;
+  top: calc(var(--pad-y) + clamp(6px, 1.2vmin, 10px));
+  left: calc(var(--pad-x) + clamp(6px, 1.2vmin, 10px));
+  display: flex;
+  gap: clamp(4px, 0.8vmin, 6px);
+}
+
+.hud-top-center {
+  position: absolute;
+  top: calc(var(--pad-y) + clamp(6px, 1.2vmin, 10px));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.hud-top-right {
+  position: absolute;
+  top: calc(var(--pad-y) + clamp(6px, 1.2vmin, 10px));
+  right: calc(var(--pad-x2) + clamp(6px, 1.2vmin, 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(4px, 0.8vmin, 6px);
+}
+
+.hud-bottom-left {
+  position: absolute;
+  bottom: calc(var(--pad-y2) + clamp(6px, 1.2vmin, 10px));
+  left: calc(var(--pad-x) + clamp(6px, 1.2vmin, 10px));
+}
+
+.hud-bottom-right {
+  position: absolute;
+  bottom: calc(var(--pad-y2) + clamp(6px, 1.2vmin, 10px));
+  right: calc(var(--pad-x2) + clamp(6px, 1.2vmin, 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(4px, 0.8vmin, 6px);
+  pointer-events: auto;
+}
+
+/* === BADGES (top corners) === */
+.hud-badge {
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
-  padding: 3px 9px;
-  backdrop-filter: blur(2px);
+  padding: clamp(3px, 0.7vmin, 5px) clamp(8px, 1.5vmin, 12px);
+  font-size: clamp(10px, 1.6vmin, 13px);
+  font-weight: 600;
+  color: #e2e8f0;
+  backdrop-filter: blur(6px);
   white-space: nowrap;
 }
 
-.timer-card {
-  position: relative;
-  left: auto;
-  transform: none;
-  top: auto;
-  background: rgba(0,0,0,.5);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 10px;
-  padding: clamp(3px, 1vmin, 6px) clamp(6px, 1.5vmin, 10px);
-  text-align: center;
-  font-size: clamp(10px, 1.7vmin, 12px);
-  line-height: 1.15;
-  pointer-events: none;
-  z-index: 5;
-  backdrop-filter: blur(2px);
+.hud-badge--weapon {
+  border-radius: 8px;
+  font-weight: 500;
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.22);
 }
-.timer-card strong { font-size: clamp(12px, 2vmin, 15px); display: block; }
 
-.status {
-  position: relative;
-  left: auto;
-  bottom: auto;
-  right: auto;
+.hud-badge--juice {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.22);
+}
+
+/* === TIMER (top center) === */
+.hud-timer {
   display: flex;
-  gap: clamp(4px, 1vmin, 8px);
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
-  font-size: clamp(10px, 1.7vmin, 12px);
-  background: rgba(0,0,0,.5);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 12px;
-  padding: clamp(4px, 1vmin, 6px) clamp(6px, 1.5vmin, 10px);
-  backdrop-filter: blur(2px);
-  z-index: 5;
-  width: clamp(280px, 48vw, 540px);
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: clamp(4px, 0.8vmin, 6px) clamp(12px, 2.5vmin, 20px);
+  backdrop-filter: blur(6px);
+  min-width: clamp(72px, 13vmin, 100px);
+  text-align: center;
+  transition: border-color 300ms;
 }
-.status-meters {
-  display: grid;
-  gap: 4px;
-  min-width: min(360px, 48vw);
-  flex: 1 1 240px;
-}
-.status-meter {
-  display: grid;
-  gap: 2px;
-}
-.status-meter-label {
-  font-size: clamp(10px, 1.6vmin, 12px);
+
+.hud-timer-label {
+  font-size: clamp(8px, 1.3vmin, 10px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(226, 232, 240, 0.55);
   line-height: 1;
-  color: rgba(226, 232, 240, 0.95);
+  margin-bottom: clamp(2px, 0.4vmin, 3px);
 }
-.status-meter-track {
+
+.hud-timer-value {
+  font-size: clamp(15px, 2.6vmin, 21px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #e2e8f0;
+  line-height: 1;
+  transition: color 300ms;
+}
+
+.hud-timer--urgent {
+  border-color: rgba(244, 63, 94, 0.45);
+  animation: hud-timer-pulse 1s ease-in-out infinite;
+}
+
+.hud-timer--urgent .hud-timer-value { color: #f87171; }
+
+@keyframes hud-timer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+  50% { box-shadow: 0 0 8px 2px rgba(244, 63, 94, 0.18); }
+}
+
+/* === VITALS (bottom left) === */
+.hud-vitals {
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: clamp(6px, 1.1vmin, 9px) clamp(8px, 1.5vmin, 12px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.9vmin, 7px);
+  backdrop-filter: blur(6px);
+  min-width: clamp(150px, 26vmin, 220px);
+}
+
+.hud-bar-row {
+  display: grid;
+  grid-template-columns: clamp(16px, 2.8vmin, 22px) 1fr clamp(44px, 7.5vmin, 62px);
+  align-items: center;
+  gap: clamp(4px, 0.7vmin, 6px);
+}
+
+.hud-bar-label {
+  font-size: clamp(8px, 1.3vmin, 10px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.hud-bar-label--hp { color: #f87171; }
+.hud-bar-label--xp { color: #67e8f9; }
+
+.hud-bar-track {
   position: relative;
-  width: 100%;
-  height: clamp(8px, 1.2vmin, 10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  height: clamp(6px, 1.0vmin, 8px);
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.88);
 }
-.status-meter-fill {
+
+.hud-bar-fill {
   height: 100%;
   border-radius: inherit;
   transition: width 120ms linear;
 }
-.status-meter-track.hp .status-meter-fill {
-  background: linear-gradient(90deg, #f43f5e, #ef4444);
-}
-.status-meter-track.xp .status-meter-fill {
-  background: linear-gradient(90deg, #22d3ee, #6366f1);
-}
-.status button {
-  margin-left: auto;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.2);
-  color: #e2e8f0;
-  border-radius: 8px;
-  padding: 3px 10px;
-  font-size: clamp(10px, 1.7vmin, 12px);
-  min-height: 26px;
+
+.hud-bar-hp .hud-bar-fill { background: linear-gradient(90deg, #f43f5e, #ef4444); }
+
+.hud-bar-hp--low .hud-bar-fill {
+  animation: hud-hp-pulse 1.1s ease-in-out infinite;
 }
 
+@keyframes hud-hp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hud-bar-xp .hud-bar-fill { background: linear-gradient(90deg, #22d3ee, #6366f1); }
+
+.hud-bar-value {
+  font-size: clamp(8px, 1.3vmin, 10px);
+  color: rgba(226, 232, 240, 0.6);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* === CONTROLS / RESTART (bottom right) === */
+.hud-hint {
+  font-size: clamp(9px, 1.4vmin, 11px);
+  color: rgba(226, 232, 240, 0.4);
+  white-space: nowrap;
+}
+
+.hud-restart {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(226, 232, 240, 0.85);
+  border-radius: 8px;
+  padding: clamp(4px, 0.8vmin, 6px) clamp(10px, 1.8vmin, 14px);
+  font-size: clamp(10px, 1.6vmin, 12px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+
+.hud-restart:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+/* === RESPONSIVE === */
 @media (pointer: coarse) {
-  .status {
-    align-items: stretch;
-  }
-  .status-meters {
-    min-width: 100%;
-    flex-basis: 100%;
-  }
-  .status button {
-    margin-left: 0;
-  }
+  .hud-hint { display: none; }
+  .hud-vitals { min-width: clamp(140px, 45vw, 200px); }
 }
 
 @media (orientation: landscape) and (max-height: 420px) {
-  .status > div:nth-child(2) { display: none; }
-  .status-meters { min-width: 180px; }
+  .hud-hint { display: none; }
+  .hud-vitals { min-width: clamp(120px, 30vw, 180px); }
 }
