@@ -149,11 +149,21 @@ button {
 }
 .modal button[disabled] { opacity: .5; cursor: default; }
 
-.hud-row {
+.hud {
   position: absolute;
   top: calc(var(--pad-y) + clamp(4px, 1.2vmin, 10px));
   left: calc(var(--pad-x) + clamp(4px, 1.2vmin, 10px));
-  right: calc(var(--pad-x2) + clamp(4px, 1.2vmin, 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(4px, 1vmin, 8px);
+  transform: scale(0.25);
+  transform-origin: top left;
+  z-index: 5;
+}
+
+.hud-row {
+  position: relative;
   display: flex;
   gap: clamp(4px, 1vmin, 8px);
   flex-wrap: wrap;
@@ -171,10 +181,10 @@ button {
 }
 
 .timer-card {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: calc(var(--pad-y) + clamp(30px, 5vmin, 38px));
+  position: relative;
+  left: auto;
+  transform: none;
+  top: auto;
   background: rgba(0,0,0,.5);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
@@ -189,10 +199,10 @@ button {
 .timer-card strong { font-size: clamp(12px, 2vmin, 15px); display: block; }
 
 .status {
-  position: absolute;
-  left: calc(var(--pad-x) + clamp(4px, 1.2vmin, 10px));
-  bottom: calc(var(--pad-y2) + clamp(4px, 1.2vmin, 10px));
-  right: calc(var(--pad-x2) + clamp(4px, 1.2vmin, 10px));
+  position: relative;
+  left: auto;
+  bottom: auto;
+  right: auto;
   display: flex;
   gap: clamp(4px, 1vmin, 8px);
   align-items: center;
@@ -204,6 +214,7 @@ button {
   padding: clamp(4px, 1vmin, 6px) clamp(6px, 1.5vmin, 10px);
   backdrop-filter: blur(2px);
   z-index: 5;
+  width: clamp(280px, 48vw, 540px);
 }
 .status-meters {
   display: grid;
