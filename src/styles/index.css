@@ -163,6 +163,12 @@ button {
   top: calc(var(--pad-y) + clamp(6px, 1.2vmin, 10px));
   left: calc(var(--pad-x) + clamp(6px, 1.2vmin, 10px));
   display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.9vmin, 8px);
+}
+
+.hud-badges {
+  display: flex;
   gap: clamp(4px, 0.8vmin, 6px);
 }
 
@@ -181,12 +187,6 @@ button {
   flex-direction: column;
   align-items: flex-end;
   gap: clamp(4px, 0.8vmin, 6px);
-}
-
-.hud-bottom-left {
-  position: absolute;
-  bottom: calc(var(--pad-y2) + clamp(6px, 1.2vmin, 10px));
-  left: calc(var(--pad-x) + clamp(6px, 1.2vmin, 10px));
 }
 
 .hud-bottom-right {
@@ -271,28 +271,28 @@ button {
   50% { box-shadow: 0 0 8px 2px rgba(244, 63, 94, 0.18); }
 }
 
-/* === VITALS (bottom left) === */
+/* === VITALS (top left) === */
 .hud-vitals {
   background: rgba(2, 6, 23, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  padding: clamp(6px, 1.1vmin, 9px) clamp(8px, 1.5vmin, 12px);
+  padding: clamp(8px, 1.4vmin, 12px) clamp(10px, 1.8vmin, 16px);
   display: flex;
   flex-direction: column;
-  gap: clamp(5px, 0.9vmin, 7px);
+  gap: clamp(7px, 1.2vmin, 10px);
   backdrop-filter: blur(6px);
-  min-width: clamp(150px, 26vmin, 220px);
+  min-width: clamp(200px, 34vmin, 280px);
 }
 
 .hud-bar-row {
   display: grid;
-  grid-template-columns: clamp(16px, 2.8vmin, 22px) 1fr clamp(44px, 7.5vmin, 62px);
+  grid-template-columns: clamp(22px, 3.5vmin, 28px) 1fr clamp(56px, 9vmin, 76px);
   align-items: center;
-  gap: clamp(4px, 0.7vmin, 6px);
+  gap: clamp(5px, 0.9vmin, 8px);
 }
 
 .hud-bar-label {
-  font-size: clamp(8px, 1.3vmin, 10px);
+  font-size: clamp(12px, 1.9vmin, 15px);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -304,7 +304,7 @@ button {
 
 .hud-bar-track {
   position: relative;
-  height: clamp(6px, 1.0vmin, 8px);
+  height: clamp(10px, 1.6vmin, 14px);
   background: rgba(15, 23, 42, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
@@ -331,7 +331,7 @@ button {
 .hud-bar-xp .hud-bar-fill { background: linear-gradient(90deg, #22d3ee, #6366f1); }
 
 .hud-bar-value {
-  font-size: clamp(8px, 1.3vmin, 10px);
+  font-size: clamp(11px, 1.7vmin, 14px);
   color: rgba(226, 232, 240, 0.6);
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -366,10 +366,10 @@ button {
 /* === RESPONSIVE === */
 @media (pointer: coarse) {
   .hud-hint { display: none; }
-  .hud-vitals { min-width: clamp(140px, 45vw, 200px); }
+  .hud-vitals { min-width: clamp(180px, 50vw, 260px); }
 }
 
 @media (orientation: landscape) and (max-height: 420px) {
   .hud-hint { display: none; }
-  .hud-vitals { min-width: clamp(120px, 30vw, 180px); }
+  .hud-vitals { min-width: clamp(160px, 36vw, 220px); }
 }
