@@ -151,9 +151,9 @@ button {
 
 .hud-row {
   position: absolute;
-  top: clamp(4px, 1.2vmin, 10px);
-  left: clamp(4px, 1.2vmin, 10px);
-  right: clamp(4px, 1.2vmin, 10px);
+  top: calc(var(--pad-y) + clamp(4px, 1.2vmin, 10px));
+  left: calc(var(--pad-x) + clamp(4px, 1.2vmin, 10px));
+  right: calc(var(--pad-x2) + clamp(4px, 1.2vmin, 10px));
   display: flex;
   gap: clamp(4px, 1vmin, 8px);
   flex-wrap: wrap;
@@ -174,7 +174,7 @@ button {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: clamp(30px, 5vmin, 38px);
+  top: calc(var(--pad-y) + clamp(30px, 5vmin, 38px));
   background: rgba(0,0,0,.5);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
@@ -190,9 +190,9 @@ button {
 
 .status {
   position: absolute;
-  left: clamp(4px, 1.2vmin, 10px);
-  bottom: clamp(4px, 1.2vmin, 10px);
-  right: clamp(4px, 1.2vmin, 10px);
+  left: calc(var(--pad-x) + clamp(4px, 1.2vmin, 10px));
+  bottom: calc(var(--pad-y2) + clamp(4px, 1.2vmin, 10px));
+  right: calc(var(--pad-x2) + clamp(4px, 1.2vmin, 10px));
   display: flex;
   gap: clamp(4px, 1vmin, 8px);
   align-items: center;
@@ -205,6 +205,41 @@ button {
   backdrop-filter: blur(2px);
   z-index: 5;
 }
+.status-meters {
+  display: grid;
+  gap: 4px;
+  min-width: min(360px, 48vw);
+  flex: 1 1 240px;
+}
+.status-meter {
+  display: grid;
+  gap: 2px;
+}
+.status-meter-label {
+  font-size: clamp(10px, 1.6vmin, 12px);
+  line-height: 1;
+  color: rgba(226, 232, 240, 0.95);
+}
+.status-meter-track {
+  position: relative;
+  width: 100%;
+  height: clamp(8px, 1.2vmin, 10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.88);
+}
+.status-meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 120ms linear;
+}
+.status-meter-track.hp .status-meter-fill {
+  background: linear-gradient(90deg, #f43f5e, #ef4444);
+}
+.status-meter-track.xp .status-meter-fill {
+  background: linear-gradient(90deg, #22d3ee, #6366f1);
+}
 .status button {
   margin-left: auto;
   background: rgba(255,255,255,.12);
@@ -216,6 +251,20 @@ button {
   min-height: 26px;
 }
 
+@media (pointer: coarse) {
+  .status {
+    align-items: stretch;
+  }
+  .status-meters {
+    min-width: 100%;
+    flex-basis: 100%;
+  }
+  .status button {
+    margin-left: 0;
+  }
+}
+
 @media (orientation: landscape) and (max-height: 420px) {
-  .status > div:nth-child(3) { display: none; }
+  .status > div:nth-child(2) { display: none; }
+  .status-meters { min-width: 180px; }
 }
