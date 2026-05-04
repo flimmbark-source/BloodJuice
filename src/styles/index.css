@@ -373,3 +373,17 @@ button {
   .hud-hint { display: none; }
   .hud-vitals { min-width: clamp(160px, 36vw, 220px); }
 }
+
+
+.start-tutorial {
+  margin: 0 0 clamp(8px, 1.6vmin, 12px);
+  padding: clamp(8px, 1.6vmin, 12px);
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  color: #dcfce7;
+}
+
+.start-tutorial strong {
+  color: #86efac;
+}
