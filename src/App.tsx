@@ -60,7 +60,8 @@ export default function App() {
     if (tutorialStep === 0 && game.player.isMoving) setTutorialStep(1);
     if (tutorialStep === 1 && game.kills > 0) setTutorialStep(2);
     if (tutorialStep === 2 && game.level > 1) setTutorialStep(3);
-    if (tutorialStep === 3 && game.phase === 'synthesis') setTutorialComplete(true);
+    if (tutorialStep === 3 && game.phase === 'synthesis') setTutorialStep(4);
+    if (tutorialStep === 4 && game.phase === 'playing' && game.wave > 1) setTutorialComplete(true);
   }, [game, tutorialComplete, tutorialStep]);
 
   const waveUpgrades = useMemo(() => game.wavePicks.map((k) => upgradeByKey(k)).filter(Boolean), [game.wavePicks]);
@@ -115,7 +116,7 @@ export default function App() {
         )}
 
 
-        {game.phase === 'playing' && !tutorialComplete && (
+        {(game.phase === 'playing' || game.phase === 'synthesis') && !tutorialComplete && (
           <TutorialOverlay step={tutorialStep} onSkip={() => setTutorialComplete(true)} />
         )}
 

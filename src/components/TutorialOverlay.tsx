@@ -28,7 +28,13 @@ const STEPS = [
     title: 'Step 4: Use Synthesis between waves',
     bodyDesktop: 'At wave end, use Synthesis to Keep upgrades you want and Burn extras into juice.',
     bodyMobile: 'At wave end, use Synthesis to Keep upgrades you want and Burn extras into juice.',
-    target: 'Reach the Synthesis screen to complete the tutorial.',
+    target: 'Reach the Synthesis screen to continue.',
+  },
+  {
+    title: 'Step 5: Shop basics - Juice and abilities',
+    bodyDesktop: 'In Synthesis, Juice is your currency. Spend it to Stabilize abilities you want to keep, or Burn unwanted ones to gain more Juice.',
+    bodyMobile: 'In Synthesis, Juice is your currency. Spend it to Stabilize abilities you want to keep, or Burn unwanted ones to gain more Juice.',
+    target: 'Choose what to Stabilize or Burn, then start the next wave to finish the tutorial.',
   },
 ] as const;
 
