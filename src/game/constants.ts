@@ -20,7 +20,7 @@ export const setArenaFromViewport = (displayWidth: number, displayHeight: number
 };
 export const PLAYER_RADIUS = 14;
 export const DROP_RADIUS = 6;
-export const WAVE_BASE = 35;
+export const WAVE_BASE = 60;
 
 export const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, value));
