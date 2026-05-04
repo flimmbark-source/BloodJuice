@@ -25,8 +25,14 @@ export const WAVE_BASE = 35;
 export const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, value));
 
+export const distSq = (a: { x: number; y: number }, b: { x: number; y: number }): number => {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return dx * dx + dy * dy;
+};
+
 export const dist = (a: { x: number; y: number }, b: { x: number; y: number }): number =>
-  Math.hypot(a.x - b.x, a.y - b.y);
+  Math.sqrt(distSq(a, b));
 
 export const rand = (min: number, max: number): number => Math.random() * (max - min) + min;
 
