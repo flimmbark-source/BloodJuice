@@ -6,6 +6,7 @@ import { RunEndScreen } from './components/RunEndScreen';
 import { SynthesisScreen } from './components/SynthesisScreen';
 import { UpgradeSelect } from './components/UpgradeSelect';
 import { WeaponSelect } from './components/WeaponSelect';
+import { TutorialOverlay } from './components/TutorialOverlay';
 import { initGame } from './game/initialState';
 import { selfCheck } from './game/selfCheck';
 import { synthBurn, synthKeep, chooseUpgrade, prepareWaveEndToSynthesis, stepGame } from './game/simulation';
@@ -27,6 +28,8 @@ export default function App() {
   const keysRef = useKeyboard();
   const { tapMoveRef, setTapTarget, clearTapTarget } = useTapMove();
   const shotCooldownRef = useRef(0);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [tutorialComplete, setTutorialComplete] = useState(false);
 
   useEffect(() => {
     selfCheck();
@@ -51,6 +54,15 @@ export default function App() {
     });
   });
 
+
+  useEffect(() => {
+    if (tutorialComplete || game.phase === 'start') return;
+    if (tutorialStep === 0 && game.player.isMoving) setTutorialStep(1);
+    if (tutorialStep === 1 && game.kills > 0) setTutorialStep(2);
+    if (tutorialStep === 2 && game.level > 1) setTutorialStep(3);
+    if (tutorialStep === 3 && game.phase === 'synthesis') setTutorialComplete(true);
+  }, [game, tutorialComplete, tutorialStep]);
+
   const waveUpgrades = useMemo(() => game.wavePicks.map((k) => upgradeByKey(k)).filter(Boolean), [game.wavePicks]);
 
   const chooseWeapon = (key: string): void => {
@@ -64,6 +76,8 @@ export default function App() {
 
   const restart = (): void => {
     shotCooldownRef.current = 0;
+    setTutorialStep(0);
+    setTutorialComplete(false);
     setGame(initGame());
   };
 
@@ -98,6 +112,11 @@ export default function App() {
               onNextWave={() => setGame((g) => beginNextWave(g))}
             />
           </Modal>
+        )}
+
+
+        {game.phase === 'playing' && !tutorialComplete && (
+          <TutorialOverlay step={tutorialStep} onSkip={() => setTutorialComplete(true)} />
         )}
 
         {(game.phase === 'dead' || game.phase === 'won') && (
