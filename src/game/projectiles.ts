@@ -102,7 +102,7 @@ export const fireShots = (player: PlayerState, enemies: Enemy[]): Projectile[] =
   if (!enemies.length) return [];
   const target = nearestEnemyInRange(player, enemies, range);
   if (!target) return [];
-  const targetPoint = player.shotStyle === 'bolt' ? predictIntercept(player, target, player.shotSpeed || 520) : { x: target.x, y: target.y };
+  const targetPoint = player.shotStyle === 'boomerang' ? { x: target.x, y: target.y } : predictIntercept(player, target, player.shotSpeed || 520);
   const baseAngle = Math.atan2(targetPoint.y - player.y, targetPoint.x - player.x);
   const spread = player.projectiles === 1 ? 0 : player.weaponSpread || 0.22;
   const multiplier =
@@ -117,6 +117,30 @@ export const fireShots = (player: PlayerState, enemies: Enemy[]): Projectile[] =
   return Array.from({ length: player.projectiles }, (_, i) =>
     makeProjectile(player, target, baseAngle + (i - (player.projectiles - 1) / 2) * spread, speed, multiplier, movingPierce, i, targetPoint),
   );
+};
+
+export const stepTrackingProjectile = (p: Projectile, enemies: Enemy[], dt: number): void => {
+  const target = enemies.find((e) => e.id === p.tid);
+  if (target) {
+    p.tx = target.x;
+    p.ty = target.y;
+    const speed = Math.hypot(p.vx, p.vy);
+    if (speed > 1e-4) {
+      const desired = Math.atan2(target.y - p.y, target.x - p.x);
+      const current = Math.atan2(p.vy, p.vx);
+      let delta = desired - current;
+      while (delta > Math.PI) delta -= Math.PI * 2;
+      while (delta < -Math.PI) delta += Math.PI * 2;
+      const turnRate = 12;
+      const step = Math.max(-turnRate * dt, Math.min(turnRate * dt, delta));
+      const next = current + step;
+      p.vx = Math.cos(next) * speed;
+      p.vy = Math.sin(next) * speed;
+    }
+  }
+  p.x += p.vx * dt;
+  p.y += p.vy * dt;
+  p.life -= dt;
 };
 
 const pushTrail = (p: Projectile, cap: number, dt: number): void => {

@@ -1,7 +1,7 @@
 import { ARENA_HEIGHT, ARENA_WIDTH, DROP_RADIUS, PLAYER_RADIUS, clamp, dist, distSq, gid, rand, waveLen, xpThreshold } from './constants';
 import { canRender, canStabilize, juiceMeta } from './juice';
 import { stepEnemy } from './enemies';
-import { fireShots, stepBoomerang, stepProjectileTrail } from './projectiles';
+import { fireShots, stepBoomerang, stepProjectileTrail, stepTrackingProjectile } from './projectiles';
 import { mkSpawnWarning, spawnGroup } from './spawning';
 import { enterLevelUpIfNeeded } from './wave';
 import { directionalSparks, ripple as mkRipple, sparkBurst, stepParticles, stepRipples } from './fx';
@@ -187,11 +187,7 @@ export const stepGame = (
     p.px = p.x;
     p.py = p.y;
     if (p.style === 'boomerang') stepBoomerang(p, n.enemies, dt, n.player.boomRate || 1);
-    else {
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.life -= dt;
-    }
+    else stepTrackingProjectile(p, n.enemies, dt);
     stepProjectileTrail(p, dt);
   });
   n.projectiles = n.projectiles.filter((p) => p.life > 0 && p.x > -40 && p.x < ARENA_WIDTH + 40 && p.y > -40 && p.y < ARENA_HEIGHT + 40);
