@@ -7,8 +7,15 @@ export const useGameLoop = (onFrame: (dt: number) => void): void => {
   cbRef.current = onFrame;
 
   useEffect(() => {
-    const frameIntervalMs = 1000 / 60;
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const lowCoreDevice = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency > 0
+      ? navigator.hardwareConcurrency <= 4
+      : false;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const targetFps = isCoarsePointer || lowCoreDevice || prefersReducedMotion ? 30 : 60;
+    const frameIntervalMs = 1000 / targetFps;
     let last = performance.now();
+    let accumulator = 0;
 
     const handleVisibility = (): void => {
       if (!document.hidden) last = performance.now();
@@ -21,12 +28,18 @@ export const useGameLoop = (onFrame: (dt: number) => void): void => {
         return;
       }
       const elapsed = now - last;
-      if (elapsed < frameIntervalMs) {
+      if (elapsed <= 0) {
         rafRef.current = requestAnimationFrame(loop);
         return;
       }
-      const dt = Math.min(0.1, elapsed / 1000);
+      accumulator += elapsed;
+      if (accumulator < frameIntervalMs) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      const dt = Math.min(0.1, accumulator / 1000);
       last = now;
+      accumulator = 0;
       cbRef.current(dt);
       rafRef.current = requestAnimationFrame(loop);
     };
