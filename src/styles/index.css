@@ -375,15 +375,59 @@ button {
 }
 
 
-.start-tutorial {
-  margin: 0 0 clamp(8px, 1.6vmin, 12px);
-  padding: clamp(8px, 1.6vmin, 12px);
-  border-radius: 10px;
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(74, 222, 128, 0.28);
-  color: #dcfce7;
+
+.tutorial-overlay {
+  position: absolute;
+  left: calc(var(--pad-x) + clamp(6px, 1.2vmin, 10px));
+  bottom: calc(var(--pad-y2) + clamp(6px, 1.2vmin, 10px));
+  width: min(420px, calc(100% - 24px));
+  background: rgba(2, 6, 23, 0.82);
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  padding: clamp(10px, 1.8vmin, 14px);
+  z-index: 7;
+  pointer-events: auto;
 }
 
-.start-tutorial strong {
-  color: #86efac;
+.tutorial-kicker {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #67e8f9;
+}
+
+.tutorial-overlay h3 {
+  margin: 0 0 6px;
+  font-size: clamp(14px, 2.2vmin, 18px);
+}
+
+.tutorial-overlay p {
+  margin: 0 0 6px;
+  font-size: clamp(12px, 1.8vmin, 14px);
+  line-height: 1.35;
+}
+
+.tutorial-target {
+  color: #bae6fd;
+  font-weight: 600;
+}
+
+.tutorial-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.tutorial-footer button {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #e2e8f0;
 }
