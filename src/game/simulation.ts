@@ -1,4 +1,4 @@
-import { ARENA_HEIGHT, ARENA_WIDTH, DROP_RADIUS, PLAYER_RADIUS, clamp, dist, gid, rand, waveLen, xpThreshold } from './constants';
+import { ARENA_HEIGHT, ARENA_WIDTH, DROP_RADIUS, PLAYER_RADIUS, clamp, dist, distSq, gid, rand, waveLen, xpThreshold } from './constants';
 import { canRender, canStabilize, juiceMeta } from './juice';
 import { stepEnemy } from './enemies';
 import { fireShots, stepBoomerang, stepProjectileTrail } from './projectiles';
@@ -198,12 +198,26 @@ export const stepGame = (
 
   n.enemies.forEach((e) => stepEnemy(e, n, keys, dt));
 
-  if (n.player.trailEnabled) n.trail.forEach((z) => n.enemies.forEach((e) => { if (dist(z, e) <= z.radius + e.r) e.hp -= n.player.trailDamagePerSecond * dt; }));
-  if (n.systems.ashWakeEnabled) n.ash.forEach((z) => n.enemies.forEach((e) => { if (dist(z, e) <= z.radius + e.r) e.hp -= n.systems.ashWakeDps * dt; }));
+  if (n.player.trailEnabled) {
+    for (const z of n.trail) {
+      for (const e of n.enemies) {
+        const rr = z.radius + e.r;
+        if (distSq(z, e) <= rr * rr) e.hp -= n.player.trailDamagePerSecond * dt;
+      }
+    }
+  }
+  if (n.systems.ashWakeEnabled) {
+    for (const z of n.ash) {
+      for (const e of n.enemies) {
+        const rr = z.radius + e.r;
+        if (distSq(z, e) <= rr * rr) e.hp -= n.systems.ashWakeDps * dt;
+      }
+    }
+  }
 
   n.projectiles.forEach((p) => {
     for (const e of n.enemies) {
-      if (!p.hitIds.includes(e.id) && dist(p, e) <= e.r + p.size) {
+      if (!p.hitIds.includes(e.id) && distSq(p, e) <= (e.r + p.size) * (e.r + p.size)) {
         if (p.style === 'boomerang' && p.dotDps > 0) {
           e.dotDps = Math.max(e.dotDps || 0, p.dotDps);
           e.dotTime = Math.max(e.dotTime || 0, p.dotTime);
@@ -243,7 +257,7 @@ export const stepGame = (
       n.ripples.push(mkRipple(pt.x, pt.y, n.systems.corpseExplosionRadius + 4, '#fde68a', 0.34, 2.4));
       n.particles.push(...sparkBurst(pt.x, pt.y, '#fbbf24', 10, 220, [0.28, 0.5], 2));
       n.enemies.forEach((e) => {
-        if (dist(pt, e) <= n.systems.corpseExplosionRadius + e.r) {
+        if (distSq(pt, e) <= (n.systems.corpseExplosionRadius + e.r) * (n.systems.corpseExplosionRadius + e.r)) {
           e.hp -= n.systems.corpseExplosionDamage;
           e.hurtFlash = 1;
         }
@@ -270,8 +284,9 @@ export const stepGame = (
 
   const magnet = magnetRange(n);
   n.drops.forEach((d) => {
-    const dd = dist(d, n.player);
-    if (dd < magnet) {
+    const ddSq = distSq(d, n.player);
+    if (ddSq < magnet * magnet) {
+      const dd = Math.sqrt(ddSq);
       const a = Math.atan2(n.player.y - d.y, n.player.x - d.x);
       const sp = 240 + (magnet - dd) * 4;
       d.x += Math.cos(a) * sp * dt;
@@ -279,7 +294,7 @@ export const stepGame = (
     }
   });
   n.drops = n.drops.filter((d) => {
-    if (dist(d, n.player) >= PLAYER_RADIUS + DROP_RADIUS + 2) return true;
+    if (distSq(d, n.player) >= (PLAYER_RADIUS + DROP_RADIUS + 2) * (PLAYER_RADIUS + DROP_RADIUS + 2)) return true;
     if (d.type === 'xp') {
       n.xp += d.value;
       n.floaters.push({ id: gid(), x: n.player.x + rand(-10, 10), y: n.player.y - 18, text: `+${d.value} XP`, color: '#34d399', life: 0.6, vy: 20 });
@@ -307,7 +322,7 @@ export const stepGame = (
   if (n.pendingLevelUps > 0) return { state: enterLevelUpIfNeeded(n), shotCooldown };
 
   for (const e of n.enemies) {
-    if (dist(e, n.player) < e.r + PLAYER_RADIUS && n.invuln <= 0) {
+    if (distSq(e, n.player) < (e.r + PLAYER_RADIUS) * (e.r + PLAYER_RADIUS) && n.invuln <= 0) {
       let damage = e.damage;
       if (n.player.shield > 0) {
         const absorbed = Math.min(n.player.shield, damage);
